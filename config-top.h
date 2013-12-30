@@ -86,4 +86,4 @@
 
 /* Define this if you want bash to try to check whether it's being run by
    sshd and source the .bashrc if so (like the rshd behavior). */
-/* #define SSH_SOURCE_BASHRC */
+#define SSH_SOURCE_BASHRC
