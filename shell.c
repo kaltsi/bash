@@ -71,6 +71,10 @@
 #  include <readline/history.h>
 #endif
 
+#if defined (READLINE)
+#include "bashline.h"
+#endif
+
 #include <tilde/tilde.h>
 #include <glob/strmatch.h>
 
@@ -1728,6 +1732,11 @@ shell_reinitialize ()
      the environment is parsed. */
   delete_all_contexts (shell_variables);
   delete_all_variables (shell_functions);
+
+#if defined (READLINE)
+  sv_comp_wordbreaks ("COMP_WORDBREAKS");
+  bash_readline_initialized = 0;
+#endif /* READLINE */
 
   shell_reinitialized = 1;
 }
