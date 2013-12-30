@@ -1182,7 +1182,7 @@ input_file_descriptor ()
 
 #if defined (READLINE)
 char *current_readline_prompt = (char *)NULL;
-char *current_readline_line = (char *)NULL;
+unsigned char *current_readline_line = (unsigned char *)NULL;
 int current_readline_line_index = 0;
 
 static int
