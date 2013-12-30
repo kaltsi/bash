@@ -8216,10 +8216,11 @@ Suspend the execution of this shell until it receives a
 .B SIGCONT
 signal.  When the suspended shell is a background process, it can be restarted by the fg command. For more information, read the
 .B JOB CONTROL 
-section. The
+section. The suspend command can not suspend the login shell.
+However, when
 .B \-f
-option says not to complain if this is 
-a login shell; just suspend anyway.  The return status is 0 unless
+option is specified, suspend command can suspend even login shell.
+The return status is 0 unless
 the shell is a login shell and
 .B \-f
 is not supplied, or if job control is not enabled.
