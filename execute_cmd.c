@@ -99,6 +99,8 @@ extern int errno;
 #  include "bashhist.h"
 #endif
 
+#include "quit.h"
+
 extern int posixly_correct;
 extern int breaking, continuing, loop_level;
 extern int expand_aliases;
@@ -3947,6 +3949,7 @@ shell_execve (command, args, env)
   SETOSTYPE (0);		/* Some systems use for USG/POSIX semantics */
   execve (command, args, env);
   i = errno;			/* error from execve() */
+  CHECK_TERMSIG;
   SETOSTYPE (1);
 
   /* If we get to this point, then start checking out the file.
