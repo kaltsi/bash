@@ -38,7 +38,7 @@ option is given, it is interpreted as follows:
     -f	the maximum size of files written by the shell and its children
     -i	the maximum number of pending signals
     -l	the maximum size a process may lock into memory
-    -m	the maximum resident set size
+    -m	the maximum resident set size (has no effect on Linux)
     -n	the maximum number of open file descriptors
     -p	the pipe buffer size
     -q	the maximum number of bytes in POSIX message queues
