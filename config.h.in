@@ -203,6 +203,8 @@
 
 #define DEFAULT_MAIL_DIRECTORY "/var/spool/mail"
 
+#undef PATH_RANDOMDEV
+
 /* Characteristics of the system's header files and libraries that affect
    the compilation environment. */
 
@@ -816,6 +818,10 @@
 
 /* Define if you have the wcwidth function.  */
 #undef HAVE_WCWIDTH
+
+#undef HAVE_RANDOM
+
+#undef HAVE_SRANDOM
 
 /* Presence of certain system include files. */
 

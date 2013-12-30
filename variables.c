@@ -42,6 +42,11 @@
 #include "bashansi.h"
 #include "bashintl.h"
 
+#if defined (PATH_RANDOMDEV)
+#  include <errno.h>
+#  include "filecntl.h"
+#endif
+
 #include "shell.h"
 #include "flags.h"
 #include "execute_cmd.h"
@@ -182,7 +187,8 @@ static SHELL_VAR *get_seconds __P((SHELL_VAR *));
 static SHELL_VAR *init_seconds_var __P((void));
 
 static int brand __P((void));
-static void sbrand __P((unsigned long));		/* set bash random number generator. */
+static void sbrand __P((unsigned int));		/* set bash random number generator. */
+static void seed_random __P((void));                    /* seed the generator randomly */
 static SHELL_VAR *assign_random __P((SHELL_VAR *, char *, arrayind_t));
 static SHELL_VAR *get_random __P((SHELL_VAR *));
 
@@ -493,9 +499,6 @@ initialize_shell_variables (env, privmode)
 #endif
     }
 #endif /* HISTORY */
-
-  /* Seed the random number generator. */
-  sbrand (dollar_dollar_pid + shell_start_time);
 
   /* Handle some "special" variables that we may have inherited from a
      parent shell. */
@@ -1143,9 +1146,11 @@ init_seconds_var ()
 }
      
 /* The random number seed.  You can change this by setting RANDOM. */
+#if !defined (HAVE_RANDOM)
 static unsigned long rseed = 1;
+#endif
 static int last_random_value;
-static int seeded_subshell = 0;
+static int seeded_subshell = -1;
 
 /* A linear congruential random number generator based on the example
    one in the ANSI C standard.  This one isn't very good, but a more
@@ -1155,17 +1160,48 @@ static int seeded_subshell = 0;
 static int
 brand ()
 {
+#if defined (HAVE_RANDOM)
+  unsigned int rseed;
+  rseed = random();
+#else
   rseed = rseed * 1103515245 + 12345;
+#endif
   return ((unsigned int)((rseed >> 16) & 32767));	/* was % 32768 */
 }
 
 /* Set the random number generator seed to SEED. */
 static void
 sbrand (seed)
-     unsigned long seed;
+     unsigned int seed;
 {
+#if defined (HAVE_RANDOM)
+  srandom((unsigned int)seed);
+#else
   rseed = seed;
+#endif
   last_random_value = 0;
+}
+
+static void
+seed_random ()
+{
+  unsigned int seed;
+#if defined (PATH_RANDOMDEV)
+  int fd;
+  int rv;
+  if ((rv = fd = open (PATH_RANDOMDEV, O_RDONLY)) != -1) { 
+    while ((rv = read(fd, &seed, sizeof(seed))) != sizeof(seed) && errno == EINTR);
+    close (fd);
+  }
+  if (rv != sizeof(seed)) {
+#endif
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    seed = (unsigned int)tv.tv_sec + (unsigned int)tv.tv_usec + getpid();
+#if defined (PATH_RANDOMDEV)
+  }
+#endif
+  sbrand (seed);
 }
 
 static SHELL_VAR *
@@ -1174,9 +1210,8 @@ assign_random (self, value, unused)
      char *value;
      arrayind_t unused;
 {
-  sbrand (strtoul (value, (char **)NULL, 10));
-  if (subshell_environment)
-    seeded_subshell = 1;
+  sbrand ((unsigned int)strtoul (value, (char **)NULL, 10));
+  seeded_subshell = subshell_level;
   return (self);
 }
 
@@ -1186,10 +1221,10 @@ get_random_number ()
   int rv;
 
   /* Reset for command and process substitution. */
-  if (subshell_environment && seeded_subshell == 0)
+  if (seeded_subshell < subshell_level)
     {
-      sbrand (rseed + getpid() + NOW);
-      seeded_subshell = 1;
+      seed_random ();
+      seeded_subshell = subshell_level;
     }
 
   do

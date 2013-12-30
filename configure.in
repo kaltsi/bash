@@ -111,6 +111,7 @@ AC_ARG_WITH(gnu-malloc, AC_HELP_STRING([--with-gnu-malloc], [synonym for --with-
 AC_ARG_WITH(installed-readline, AC_HELP_STRING([--with-installed-readline], [use a version of the readline library that is already installed]), opt_with_installed_readline=$withval)
 AC_ARG_WITH(purecov, AC_HELP_STRING([--with-purecov], [configure to postprocess with pure coverage]), opt_purecov=$withval)
 AC_ARG_WITH(purify, AC_HELP_STRING([--with-purify], [configure to postprocess with purify]), opt_purify=$withval)
+AC_ARG_WITH(random, AC_HELP_STRING([--with-randomdev=path], [use specified random device instead of /dev/urandom]), opt_randomdev=$withval)
 
 if test "$opt_bash_malloc" = yes; then
 	MALLOC_TARGET=malloc
@@ -150,6 +151,15 @@ fi
 
 if test -z "${DEBUGGER_START_FILE}"; then
 	DEBUGGER_START_FILE=${ac_default_prefix}/share/bashdb/bashdb-main.inc
+fi
+
+if test "$opt_randomdev" = yes -o -z "$opt_randomdev"; then
+	opt_randomdev="/dev/urandom"
+elif test "$opt_randomdev" = no; then
+	opt_randomdev=
+fi
+if test -n "$opt_randomdev"; then
+	AC_DEFINE_UNQUOTED(PATH_RANDOMDEV, "$opt_randomdev", [Random device path.])
 fi
 
 dnl optional shell features in config.h.in
@@ -707,6 +717,8 @@ AC_CHECK_FUNCS(bcopy bzero confstr fnmatch \
 		memmove pathconf putenv raise regcomp regexec \
 		setenv setlinebuf setlocale setvbuf siginterrupt strchr \
 		sysconf tcgetattr times ttyname tzset unsetenv)
+
+AC_CHECK_FUNCS(random srandom)
 
 AC_CHECK_FUNCS(vsnprintf snprintf vasprintf asprintf)
 AC_CHECK_FUNCS(isascii isblank isgraph isprint isspace isxdigit)
