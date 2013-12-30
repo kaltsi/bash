@@ -69,8 +69,13 @@ extern char *strcpy ();
 #define whitespace(c) (((c) == ' ') || ((c) == '\t'))
 
 /* Flag values that builtins can have. */
+/*  These flags are for the C code generator, 
+    the C which is produced (./builtin.c)
+    includes the flags definitions found 
+    in ../builtins.h */
 #define BUILTIN_FLAG_SPECIAL	0x01
 #define BUILTIN_FLAG_ASSIGNMENT 0x02
+#define BUILTIN_FLAG_REQUIRES	0x04
 
 #define BASE_INDENT	4
 
@@ -154,9 +159,17 @@ char *assignment_builtins[] =
   (char *)NULL
 };
 
+/* The builtin commands that cause requirements on other files. */
+static char *requires_builtins[] =
+{
+  ".", "command", "exec", "source", "inlib",
+  (char *)NULL
+};
+
 /* Forward declarations. */
 static int is_special_builtin ();
 static int is_assignment_builtin ();
+static int is_requires_builtin ();
 
 #if !defined (HAVE_RENAME)
 static int rename ();
@@ -800,6 +813,8 @@ builtin_handler (self, defs, arg)
     new->flags |= BUILTIN_FLAG_SPECIAL;
   if (is_assignment_builtin (name))
     new->flags |= BUILTIN_FLAG_ASSIGNMENT;
+  if (is_requires_builtin (name))
+    new->flags |= BUILTIN_FLAG_REQUIRES;
 
   array_add ((char *)new, defs->builtins);
   building_builtin = 1;
@@ -1217,10 +1232,11 @@ write_builtins (defs, structfile, externfile)
 		  else
 		    fprintf (structfile, "(sh_builtin_func_t *)0x0, ");
 
-		  fprintf (structfile, "%s%s%s, %s_doc,\n",
+		  fprintf (structfile, "%s%s%s%s, %s_doc,\n",
 		    "BUILTIN_ENABLED | STATIC_BUILTIN",
 		    (builtin->flags & BUILTIN_FLAG_SPECIAL) ? " | SPECIAL_BUILTIN" : "",
 		    (builtin->flags & BUILTIN_FLAG_ASSIGNMENT) ? " | ASSIGNMENT_BUILTIN" : "",
+		    (builtin->flags & BUILTIN_FLAG_REQUIRES) ? " | REQUIRES_BUILTIN" : "",
 		    document_name (builtin));
 
 		  fprintf
@@ -1559,6 +1575,13 @@ is_assignment_builtin (name)
      char *name;
 {
   return (_find_in_table (name, assignment_builtins));
+}
+
+static int
+is_requires_builtin (name)
+     char *name;
+{
+  return (_find_in_table (name, requires_builtins));
 }
 
 #if !defined (HAVE_RENAME)

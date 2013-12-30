@@ -40,6 +40,7 @@
 #define STATIC_BUILTIN  0x4	/* This builtin is not dynamically loaded. */
 #define SPECIAL_BUILTIN 0x8	/* This is a Posix `special' builtin. */
 #define ASSIGNMENT_BUILTIN 0x10	/* This builtin takes assignment statements. */
+#define REQUIRES_BUILTIN 0x20	/* This builtin requires other files. */
 
 #define BASE_INDENT	4
 

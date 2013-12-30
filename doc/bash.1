@@ -232,6 +232,13 @@ The shell becomes restricted (see
 .B "RESTRICTED SHELL"
 below).
 .TP
+.B \-\-rpm-requires
+Produce the list of files that are required for the 
+shell script to run.  This implies '-n' and is subject
+to the same limitations as compile time error checking checking;
+Backticks, [] tests,  and evals are not parsed so some 
+dependencies may be missed.
+.TP
 .B \-\-verbose
 Equivalent to  \fB\-v\fP.
 .TP

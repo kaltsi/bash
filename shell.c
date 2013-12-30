@@ -175,6 +175,9 @@ int running_under_emacs;
 /* The name of the .(shell)rc file. */
 static char *bashrc_file = "~/.bashrc";
 
+/* Non-zero if we are finding the scripts requirements. */
+int rpm_requires;
+
 /* Non-zero means to act more like the Bourne shell on startup. */
 static int act_like_sh;
 
@@ -233,6 +236,7 @@ struct {
   { "posix", Int, &posixly_correct, (char **)0x0 },
   { "protected", Int, &protected_mode, (char **)0x0 },
   { "rcfile", Charp, (int *)0x0, &bashrc_file },
+  { "rpm-requires", Int, &rpm_requires, (char **)0x0 },
 #if defined (RESTRICTED_SHELL)
   { "restricted", Int, &restricted, (char **)0x0 },
 #endif
@@ -459,6 +463,12 @@ main (argc, argv, env)
 
   if (dump_translatable_strings)
     read_but_dont_execute = 1;
+
+  if (rpm_requires)
+    {
+      read_but_dont_execute = 1;
+      initialize_shell_builtins ();
+    }
 
   if (running_setuid && privileged_mode == 0)
     disable_priv_mode ();

@@ -41,11 +41,15 @@ Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 #include "flags.h"
 #include "make_cmd.h"
 #include "dispose_cmd.h"
+#include "execute_cmd.h"
 #include "variables.h"
 #include "subst.h"
 #include "input.h"
 #include "ocache.h"
 #include "externs.h"
+#include "builtins.h"
+
+#include "builtins/common.h"
 
 #if defined (JOB_CONTROL)
 #include "jobs.h"
@@ -55,6 +59,10 @@ Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 
 extern int line_number, current_command_line_count;
 extern int last_command_exit_value;
+extern int rpm_requires;
+
+static char *alphabet_set = "abcdefghijklmnopqrstuvwxyz"
+                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /* Object caching */
 sh_obj_cache_t wdcache = {0, 0, 0};
@@ -789,6 +797,27 @@ make_subshell_command (command)
   return (make_command (cm_subshell, (SIMPLE_COM *)temp));
 }
 
+static void
+output_requirement (deptype, filename)
+const char *deptype;
+char *filename;
+{
+  if (strchr(filename, '$') || (filename[0] != '/' && strchr(filename, '/')))
+    return;
+
+  /* 
+      if the executable is called via variable substitution we can
+      not dermine what it is at compile time.  
+
+      if the executable consists only of characters not in the
+      alphabet we do not consider it a dependency just an artifact
+      of shell parsing (ex "exec < ${infile}").
+  */
+
+  if (strpbrk(filename, alphabet_set))
+    printf ("%s(%s)\n", deptype, filename);
+}
+
 /* Reverse the word list and redirection list in the simple command
    has just been parsed.  It seems simpler to do this here the one
    time then by any other method that I can think of. */
@@ -805,6 +834,27 @@ clean_simple_command (command)
       command->value.Simple->redirects =
 	REVERSE_LIST (command->value.Simple->redirects, REDIRECT *);
     }
+
+  if (rpm_requires && command->value.Simple->words)
+    {
+      char *cmd0;
+      char *cmd1;
+      struct builtin *b;
+
+      cmd0 = command->value.Simple->words->word->word;
+      b = builtin_address_internal (cmd0, 0);
+      cmd1 = 0;
+      if (command->value.Simple->words->next)
+        cmd1 = command->value.Simple->words->next->word->word;
+
+      if (b) {
+        if ( (b->flags & REQUIRES_BUILTIN) && cmd1)
+          output_requirement ("executable", cmd1);
+      } else {
+        if (!assignment(cmd0, 0))
+          output_requirement (find_function(cmd0) ? "function" : "executable", cmd0);
+      }
+    } /*rpm_requires*/
 
   return (command);
 }

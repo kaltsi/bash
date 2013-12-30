@@ -476,6 +476,8 @@ async_redirect_stdin ()
 
 #define DESCRIBE_PID(pid) do { if (interactive) describe_pid (pid); } while (0)
 
+extern int rpm_requires;
+
 /* Execute the command passed in COMMAND, perhaps doing it asynchrounously.
    COMMAND is exactly what read_command () places into GLOBAL_COMMAND.
    ASYNCHROUNOUS, if non-zero, says to do this command in the background.
@@ -507,8 +509,13 @@ execute_command_internal (command, asynchronous, pipe_in, pipe_out,
 #else
   if (breaking || continuing)
     return (last_command_exit_value);
-  if (command == 0 || read_but_dont_execute)
+  if (command == 0 || (read_but_dont_execute && !rpm_requires))
     return (EXECUTION_SUCCESS);
+  if (rpm_requires && command->type == cm_function_def)
+    return last_command_exit_value =
+      execute_intern_function (command->value.Function_def->name,
+                              command->value.Function_def->command);
+
 #endif
 
   QUIT;
@@ -4073,7 +4080,7 @@ execute_intern_function (name, function)
 
   if (check_identifier (name, posixly_correct) == 0)
     {
-      if (posixly_correct && interactive_shell == 0)
+      if (posixly_correct && interactive_shell == 0 && rpm_requires == 0)
 	{
 	  last_command_exit_value = EX_USAGE;
 	  jump_to_top_level (ERREXIT);
