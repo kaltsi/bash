@@ -1211,7 +1211,7 @@ assign_random (self, value, unused)
      arrayind_t unused;
 {
   sbrand ((unsigned int)strtoul (value, (char **)NULL, 10));
-  seeded_subshell = subshell_level;
+  seeded_subshell = getpid();
   return (self);
 }
 
@@ -1221,10 +1221,10 @@ get_random_number ()
   int rv;
 
   /* Reset for command and process substitution. */
-  if (seeded_subshell < subshell_level)
+  if (seeded_subshell != getpid())
     {
       seed_random ();
-      seeded_subshell = subshell_level;
+      seeded_subshell = getpid();
     }
 
   do
