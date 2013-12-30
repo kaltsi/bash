@@ -370,7 +370,7 @@ readline_internal_setup ()
 
 #if defined (VI_MODE)
   if (rl_editing_mode == vi_mode)
-    rl_vi_insertion_mode (1, 'i');
+    rl_vi_insert_mode (1, 'i');
 #endif /* VI_MODE */
 
   if (rl_pre_input_hook)

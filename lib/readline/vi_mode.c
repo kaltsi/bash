@@ -220,6 +220,15 @@ rl_vi_redo (count, c)
       if (rl_point > 0)
 	_rl_vi_backup ();
     }
+  /* Ditto for redoing an insert with `I', but move to the beginning of line
+     like the `I' command does. */
+  else if (_rl_vi_last_command == 'I' && vi_insert_buffer && *vi_insert_buffer)
+    {
+      rl_beg_of_line (1, 'I');
+      _rl_vi_stuff_insert (count);
+      if (rl_point > 0)
+	_rl_vi_backup ();
+    }
   else
     r = _rl_dispatch (_rl_vi_last_command, _rl_keymap);
   vi_redoing = 0;
@@ -584,7 +593,7 @@ rl_vi_insert_beg (count, key)
      int count, key;
 {
   rl_beg_of_line (1, key);
-  rl_vi_insertion_mode (1, key);
+  rl_vi_insert_mode (1, key);
   return (0);
 }
 
@@ -613,6 +622,14 @@ rl_vi_append_mode (count, key)
      int count, key;
 {
   _rl_vi_append_forward (key);
+  rl_vi_start_inserting (key, 1, rl_arg_sign);
+  return (0);
+}
+
+int
+rl_vi_insert_mode (count, key)
+     int count, key;
+{
   rl_vi_start_inserting (key, 1, rl_arg_sign);
   return (0);
 }
@@ -690,7 +707,7 @@ _rl_vi_done_inserting ()
     }
   else
     {
-      if ((_rl_vi_last_key_before_insert == 'i' || _rl_vi_last_key_before_insert == 'a') && rl_undo_list)
+      if ((_rl_vi_last_key_before_insert == 'i' || _rl_vi_last_key_before_insert == 'a' || _rl_vi_last_key_before_insert == 'I') && rl_undo_list)
         _rl_vi_save_insert (rl_undo_list);
       /* XXX - Other keys probably need to be checked. */
       else if (_rl_vi_last_key_before_insert == 'C')

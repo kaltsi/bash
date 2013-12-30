@@ -560,7 +560,7 @@ rl_vi_editing_mode (count, key)
 #if defined (VI_MODE)
   _rl_set_insert_mode (RL_IM_INSERT, 1);	/* vi mode ignores insert mode */
   rl_editing_mode = vi_mode;
-  rl_vi_insertion_mode (1, key);
+  rl_vi_insert_mode (1, key);
 #endif /* VI_MODE */
 
   return 0;

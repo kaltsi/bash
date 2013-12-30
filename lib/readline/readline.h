@@ -230,6 +230,7 @@ extern int rl_vi_next_word PARAMS((int, int));
 extern int rl_vi_end_word PARAMS((int, int));
 extern int rl_vi_insert_beg PARAMS((int, int));
 extern int rl_vi_append_mode PARAMS((int, int));
+extern int rl_vi_insert_mode PARAMS((int, int));
 extern int rl_vi_append_eol PARAMS((int, int));
 extern int rl_vi_eof_maybe PARAMS((int, int));
 extern int rl_vi_insertion_mode PARAMS((int, int));

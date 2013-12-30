@@ -151,7 +151,7 @@ KEYMAP_ENTRY_ARRAY vi_movement_keymap = {
   { ISFUNC, rl_vi_char_search },		/* f */
   { ISFUNC, (rl_command_func_t *)0x0 },		/* g */
   { ISFUNC, rl_backward_char },			/* h */
-  { ISFUNC, rl_vi_insertion_mode },		/* i */
+  { ISFUNC, rl_vi_insert_mode },		/* i */
   { ISFUNC, rl_get_next_history },		/* j */
   { ISFUNC, rl_get_previous_history },		/* k */
   { ISFUNC, rl_forward_char },			/* l */
