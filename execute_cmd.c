@@ -2564,8 +2564,9 @@ execute_cond_node (cond)
       arg1 = cond_expand_word (cond->left->op, 0);
       if (arg1 == 0)
 	arg1 = nullstr;
-      arg2 = cond_expand_word (cond->right->op,
-			       (rmatch && shell_compatibility_level > 31) ? 2 : (patmatch ? 1 : 0));
+
+      arg2 = cond_expand_word (cond->right->op, patmatch ? 1 : 0);
+
       if (arg2 == 0)
 	arg2 = nullstr;
 
