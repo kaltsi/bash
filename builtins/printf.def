@@ -101,6 +101,7 @@ extern int errno;
   do { \
     char *b = 0; \
     int nw; \
+    clearerr (stdout); \
     if (have_fieldwidth && have_precision) \
       nw = asprintf(&b, f, fieldwidth, precision, func); \
     else if (have_fieldwidth) \
@@ -432,7 +433,9 @@ printf_builtin (list)
 
 		r = 0;
 		p = getstr ();
-		if (ansic_shouldquote (p))
+		if (p && *p == 0)	/* XXX - getstr never returns null */
+		  xp = savestring ("''");
+		else if (ansic_shouldquote (p))
 		  xp = ansic_quote (p, 0, (int *)0);
 		else
 		  xp = sh_backslash_quote (p);
