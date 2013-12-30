@@ -68,6 +68,7 @@ AR = @AR@
 ARFLAGS = @ARFLAGS@
 RANLIB = @RANLIB@
 SIZE = @SIZE@
+STRIP = strip
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -542,7 +543,7 @@ bashbug: $(SUPPORT_SRC)bashbug.sh config.h Makefile $(VERSPROG)
 	@chmod a+rx bashbug
 
 strip:	$(Program) .made
-	strip $(Program)
+	$(STRIP) $(Program)
 	ls -l $(Program)
 	-$(SIZE) $(Program)
 
