@@ -2,14 +2,14 @@
 %define patchlevel .51
 %define baseversion 3.2
 
-Version: %{baseversion}%{patchlevel}
+Version: 3.2.51
 Name: bash
 Summary: The GNU Bourne Again shell
 Release: 1
 Group: System/Shells
 License: GPLv2+
 Url: http://www.gnu.org/software/bash
-Source0: ftp://ftp.gnu.org/gnu/bash/bash-3.2.48.tar.gz
+Source0: ftp://ftp.gnu.org/gnu/bash/bash-%{version}.tar.gz
 Epoch: 1
 
 Source1: dot-bashrc
@@ -17,7 +17,7 @@ Source2: dot-bash_profile
 Source3: dot-bash_logout
 
 Requires(post): ncurses-libs
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires: texinfo bison
 BuildRequires: ncurses-devel
@@ -40,7 +40,7 @@ This package contains documentation files for %{name}.
 %define pkgdocdir %{_datadir}/doc/%{name}-%{version}
 
 %prep
-%setup -q -n %{name}-%{baseversion}.%{patchlevel}
+%setup -q -n %{name}-%{version}
 
 echo %{version} > _distribution
 echo %{release} > _patchlevel
