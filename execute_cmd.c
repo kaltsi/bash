@@ -3741,10 +3741,33 @@ execute_disk_command (words, redirects, command_line, pipe_in, pipe_out,
 
       if (command == 0)
 	{
+#if defined (COMMAND_NOT_FOUND_HANDLER)
+          SHELL_VAR *f, *v;
+          WORD_LIST *cmdlist;
+          WORD_DESC *w;
+          int fval;
+          if ( (posixly_correct || interactive_shell == 0) ||
+             ( f = find_function ("command_not_found_handler")) == 0)
+            {
+	      internal_error (_("%s: command not found"), pathname);
+	      exit (EX_NOTFOUND);     /* Posix.2 says the exit status is 127 */
+	    }
+	  w = make_word("command_not_found_handler");
+	  cmdlist = make_word_list(w, (WORD_LIST*)NULL);
+
+	  w = make_word(pathname);
+	  cmdlist->next = make_word_list(w, (WORD_LIST*)NULL);
+	   
+	  fval = execute_shell_function (f, cmdlist);
+	  if (fval == EX_NOTFOUND)
+	    internal_error (_("%s: command not found"), pathname);
+	  exit(fval);
+ 	}
+#else
 	  internal_error (_("%s: command not found"), pathname);
 	  exit (EX_NOTFOUND);	/* Posix.2 says the exit status is 127 */
 	}
-
+#endif
       /* Execve expects the command name to be in args[0].  So we
 	 leave it there, in the same format that the user used to
 	 type it in. */

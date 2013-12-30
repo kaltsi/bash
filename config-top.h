@@ -87,3 +87,7 @@
 /* Define this if you want bash to try to check whether it's being run by
    sshd and source the .bashrc if so (like the rshd behavior). */
 #define SSH_SOURCE_BASHRC
+
+/* Define this if you want  bash to try to find command_not_found_handler
+   shell function */
+#define COMMAND_NOT_FOUND_HANDLER
